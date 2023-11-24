@@ -143,13 +143,13 @@
 
         <template v-slot:conteudo>
             <div class="form-group">
-                <input-container-component titulo="Nome da marca" id="inputNovoNome" id-help="novoNomeHelp" texto-ajuda="Informe o nome da Marca">
-                    <input type="text" class="form-control" id="inputNovoNome" aria-describedby="novoNomeHelp" placeholder="Nome da Marca" v-model="nomeMarca">
+                <input-container-component titulo="Nome da marca" id="atualizarNome" id-help="atualizarNomeHelp" texto-ajuda="Informe o nome da Marca">
+                    <input type="text" class="form-control" id="atualizarNome" aria-describedby="atualizarNomeHelp" placeholder="Nome da Marca" v-model="nomeMarca">
                 </input-container-component>
             </div>
             <div class="form-group">
-                <input-container-component titulo="Imagem" id="inputImagem" id-help="imagemHelp" texto-ajuda="Selecione uma imagem no formato PNG">
-                    <input type="file" class="form-control-file" id="inputImagem" aria-describedby="imagemHelp" placeholder="Selecione uma imagem" @change="carregarImagem($event)">
+                <input-container-component titulo="Imagem" id="atualizarImagem" id-help="atualizarImagemHelp" texto-ajuda="Selecione uma imagem no formato PNG">
+                    <input type="file" class="form-control-file" id="atualizarImagem" aria-describedby="atualizarImagemHelp" placeholder="Selecione uma imagem" @change="carregarImagem($event)">
                 </input-container-component>
             </div>
         </template>
@@ -198,6 +198,9 @@ import Alert from './Alert.vue';
             }
         },
         methods: {
+            atualizar(){
+                console.log(this.$store.state.item)
+            },
             remover(){
                 let confirmacao = confirm('Deseja realmente excluir a marca ' + this.$store.state.item.nome + '?')
                 if(!confirmacao){
