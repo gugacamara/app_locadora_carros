@@ -77,11 +77,7 @@
                 .then(response => response.json()) // then serve para pegar a resposta da requisição
                 .then(data => { // o segundo then serve para pegar os dados da resposta
                     if(data.token){
-                        //document.cookie = `token=${data.token}`
-                        //document.cookie = 'token='+data.token+':SameSite=Lax'
                         document.cookie = `token=${data.token}; SameSite=Lax`;
-                        //document.cookie = 'token='+data.token+':SameSite=None;Secure'
-                        //document.cookie = 'token='+data.token
                     }
                     event.target.submit() // dando prosseguimento ao envio do formulário
                 })

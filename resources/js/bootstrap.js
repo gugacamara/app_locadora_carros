@@ -1,3 +1,6 @@
+const { default: axios } = require('axios');
+//const { config } = require('vue/types/umd');
+
 window._ = require('lodash');
 
 /**
@@ -39,3 +42,50 @@ window.axios.defaults.headers.common['X-Requested-With'] = 'XMLHttpRequest';
 //     cluster: process.env.MIX_PUSHER_APP_CLUSTER,
 //     forceTLS: true
 // });
+
+// Interceptar os requests da aplicação
+axios.interceptors.request.use(
+    config => {
+        config.headers['Accept'] = 'application/json' // o Accept é para o Laravel saber que o retorno é um JSON
+
+        let token = document.cookie.split(';').find(indice =>{
+            return indice.startsWith('token=')
+        })
+        token = token.split('=')[1]
+        token = 'Bearer ' + token
+
+        config.headers.Authorization = token // o Authorization é para o Laravel saber que o retorno é um JSON
+
+        console.log('Interceptando o request antes do envio', config)
+        return config;
+    },
+    error => {
+        console.log('Erro na requisição', error)
+        return Promise.reject(error)
+    }
+);
+
+// Interceptar os responses da aplicação
+axios.interceptors.response.use(
+    response => {
+        console.log('Interceptando a resposta antes da aplicação', response)
+        return response;
+    },
+    error => {
+        console.log('Erro na resposta', error)
+        if(error.response.status == 401 && error.response.data.message == 'Token has expired'){
+            axios.post('/api/refresh')
+                .then( response => {
+                    console.log('Token atualizado com sucesso', response)
+                    //document.cookie = 'token=' + response.data.token
+                    document.cookie = `token=${data.token}; SameSite=Lax`; //se nao funcionar, usar a linha acima
+                    window.location.reload() // faz a requisição novamente
+                })
+                .catch( error => {
+                    console.log('Erro ao tentar atualizar o token', error)
+                })
+        }
+        return Promise.reject(error);
+    }
+);
+

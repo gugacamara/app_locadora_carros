@@ -14,7 +14,7 @@
                             {{ valor }}
                         </span>
                         <span v-if="titulos[chaveValor].tipo == 'data' ">
-                            {{ valor }}
+                            {{ valor | formataDataTempoGlobal }}
                         </span>
                         <span v-if="titulos[chaveValor].tipo == 'imagem' ">
                             <img :src=" '/storage/' + valor" alt="Imagem da Marca" width="30px" height="30px">
@@ -33,11 +33,25 @@
 
 <script>
     export default {
+        // filters:{
+        //     formataDataTempo(valor){
+        //         if(!valor) return ''
+        //         valor = valor.split('T')
+        //         let data = valor[0].split('-')
+        //         data = data[2] + '/' + data[1] + '/' + data[0]
+
+        //         let tempo = valor[1].split('.')
+        //         tempo = tempo[0]
+
+        //         return data + ' ' + tempo
+        //     },
+        // },
         props: ['dados', 'titulos', 'visualizar', 'atualizar', 'remover'],
         methods:{
             setStore(objeto){
                 this.$store.state.transacao.status = '' // limpa a mensagem de erro ou sucesso no store a cada clique
                 this.$store.state.transacao.mensagem = ''
+                this.$store.state.transacao.dados = ''
                 this.$store.state.item = objeto
             }
         },

@@ -138,13 +138,14 @@
      <!-- Inicio do modal de atualização de marca-->
      <modal-component id="modalMarcaAtualizar" titulo="Atualizar Marca">
         <template v-slot:alerta>
-
+            <alert-component tipo="success" :detalhes="$store.state.transacao" titulo="Marca atualizada" v-if="$store.state.transacao.status == 'sucesso'"></alert-component>
+            <alert-component tipo="danger" :detalhes="$store.state.transacao" titulo="Erro ao tentar atualizar a marca." v-if="$store.state.transacao.status == 'erro'"></alert-component>
         </template>
 
         <template v-slot:conteudo>
             <div class="form-group">
                 <input-container-component titulo="Nome da marca" id="atualizarNome" id-help="atualizarNomeHelp" texto-ajuda="Informe o nome da Marca">
-                    <input type="text" class="form-control" id="atualizarNome" aria-describedby="atualizarNomeHelp" placeholder="Nome da Marca" v-model="nomeMarca">
+                    <input type="text" class="form-control" id="atualizarNome" aria-describedby="atualizarNomeHelp" placeholder="Nome da Marca" v-model="$store.state.item.nome">
                 </input-container-component>
             </div>
             <div class="form-group">
@@ -187,19 +188,36 @@ import Alert from './Alert.vue';
                 }
             }
         },
-        computed:{
-                token(){
-                    let token = document.cookie.split(';').find(indice =>{
-                        return indice.startsWith('token=')
-                })
-                token = token.split('=')[1]
-                token = 'Bearer ' + token
-                return token
-            }
-        },
         methods: {
             atualizar(){
-                console.log(this.$store.state.item)
+                let formData = new FormData();
+                    formData.append('_method', 'patch')
+                    formData.append('nome', this.$store.state.item.nome)
+
+                if(this.arquivoImagem[0]){
+                    formData.append('imagem', this.arquivoImagem[0])
+                }
+
+                let url = this.urlBase + '/' + this.$store.state.item.id
+
+                let config = {
+                    headers: {
+                        'Content-Type': 'multipart/form-data',
+                    }
+                }
+
+                axios.post(url, formData, config)
+                    .then(response => {
+                        this.$store.state.transacao.status = 'sucesso'
+                        this.$store.state.transacao.mensagem = 'Marca atualizada com sucesso!'
+                        atualizarImagem.value = ''
+                        this.carregarLista()
+                    })
+                    .catch(errors => {
+                        this.$store.state.transacao.status = 'erro'
+                        this.$store.state.transacao.mensagem = errors.response.data.message
+                        this.$store.state.transacao.dados = errors.response.data.errors
+                    })
             },
             remover(){
                 let confirmacao = confirm('Deseja realmente excluir a marca ' + this.$store.state.item.nome + '?')
@@ -212,13 +230,7 @@ import Alert from './Alert.vue';
 
                 let url = this.urlBase + '/' + this.$store.state.item.id
 
-                let config = {
-                    headers: {
-                        'Accept': 'application/json',
-                        'Authorization': this.token
-                    }
-                }
-                axios.delete(url, formData, config)
+                axios.delete(url, formData)
                     .then(response => {
                         this.$store.state.transacao.status = 'sucesso'
                         this.$store.state.transacao.mensagem = response.data.msg
@@ -264,14 +276,7 @@ import Alert from './Alert.vue';
             carregarLista(){
                 let url = this.urlBase + '?' + this.urlPaginacao + this.urlFiltro
 
-                let config = {
-                    headers: {
-                        'Accept': 'application/json',
-                        'Authorization': this.token
-                    }
-                }
-
-                axios.get(url, config)
+                axios.get(url)
                     .then(response => {
                         this.marcas = response.data
                     })
@@ -287,8 +292,6 @@ import Alert from './Alert.vue';
                 let config = {
                     headers: {
                         'Content-Type': 'multipart/form-data', // o Content-Type é para fazer o Laravel entender que o envio é de um formulário
-                        'Accept': 'application/json', // o Accept é para o Laravel saber que o retorno é um JSON
-                        'Authorization': this.token // o Authorization é para o Laravel saber que o retorno é um JSON
                     }
                 }
 
